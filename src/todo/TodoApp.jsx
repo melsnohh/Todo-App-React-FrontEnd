@@ -1,0 +1,85 @@
+import { Children, useState } from 'react'
+import './TodoApp.css'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import LogoutComponent from './LogoutComponent'
+import HeaderComponent from './HeaderComponent'
+import ListTodoComponent from './ListTodoComponent'
+import ErrorComponent from './ErrorComponent'
+import WelcomeComponent from './WelcomeComponent'
+import LoginComponent from './LoginComponent'
+import AuthProvider, { useAuth } from './security/AuthContext'
+import TodoComponent from './TodoComponent'
+import { toBeInTheDOM } from '@testing-library/jest-dom/dist/matchers'
+
+
+function AuthenticatedRoute({ children }) {
+    const authContext = useAuth()
+    if (authContext.isAuthenticated) {
+        return children
+    } else {
+        return <Navigate to="/" />
+    }
+}
+
+
+export default function TodoApp() {
+
+
+    return (
+        <div className="TodoApp">
+
+            <AuthProvider>
+                <BrowserRouter>
+                    <HeaderComponent />
+                    <Routes>
+                        <Route path='/' element={<LoginComponent />} />
+                        <Route path='/login' element={<LoginComponent />} />
+
+                        <Route path='/welcome/:username' element={
+                            <AuthenticatedRoute>
+                                <WelcomeComponent />
+                            </AuthenticatedRoute>
+                        } />
+
+
+                        <Route path='/todos' element={
+
+                            <AuthenticatedRoute>
+                                <ListTodoComponent />
+                            </AuthenticatedRoute>
+
+                        } />
+
+                        <Route path='/logout' element={
+                            <AuthenticatedRoute>
+                                <LogoutComponent />
+                            </AuthenticatedRoute>
+
+                        } />
+
+                        <Route 
+                            path='/updateTodo/:id'
+                            element={
+                            <AuthenticatedRoute>
+                                <TodoComponent />
+                            </AuthenticatedRoute>
+
+                        } />
+
+
+                        <Route path='*' element={<ErrorComponent />} />
+                    </Routes>
+                </BrowserRouter>
+            </AuthProvider>
+
+
+        </div>
+    )
+}
+
+
+
+
+
+
+
